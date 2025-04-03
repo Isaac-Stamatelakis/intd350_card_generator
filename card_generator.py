@@ -18,6 +18,7 @@ IMAGE_SIZE = 30
 OUTPUT_FILE = "cards.pdf"
 DATA_FILE_PATH = "data.csv"
 
+IMAGE_FOLDER_PATH = "Images/"
 LIFE_IMAGE_PATH = "life.png"
 SCHOOL_IMAGE_PATH = "school.png"
 HEALTH_IMAGE_PATH = "health.png"
@@ -110,7 +111,7 @@ def create_choice_card(c, data, x, y, width, height):
         path = DISCARD_CARD_PATH
     else:
         path = PLACE_CARD_PATH
-    c.drawImage(path,x+(width-IMAGE_SIZE)/2,start_y-len(wrapped_lines)*text_height-IMAGE_SIZE/2-5, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
+    c.drawImage(IMAGE_FOLDER_PATH + path,x+(width-IMAGE_SIZE)/2,start_y-len(wrapped_lines)*text_height-IMAGE_SIZE/2-5, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
 
 def create_time_card(c, data, x, y, width, height):
     c.setFont(FONT_BOLD, MEDIUM_FONT_SIZE)
@@ -119,7 +120,7 @@ def create_time_card(c, data, x, y, width, height):
     timeText = "Time Passes"
     text_width = c.stringWidth(timeText)
     c.drawString(x+(width-text_width)/2, y+height/2, timeText)
-    c.drawImage(TIME_IMAGE_PATH,x+(width-IMAGE_SIZE)/2,y+(height-IMAGE_SIZE)/2-20, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
+    c.drawImage(IMAGE_FOLDER_PATH+TIME_IMAGE_PATH,x+(width-IMAGE_SIZE)/2,y+(height-IMAGE_SIZE)/2-20, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
 
 def create_card_front(c, data, x, y, width, height):
     c.setFillColorRGB(1,1,1)
@@ -182,7 +183,7 @@ def draw_card_choice_content(c, x, y, width, height, anchor_x, anchor_y, directi
     image_offset = (image_count)//2*image_padding/2
     for i, key in enumerate(content.keys()):
         if (key in images):
-            c.drawImage(images[key],-IMAGE_SIZE/2-image_offset+i*image_padding,-IMAGE_SIZE/2+paddingDirection*PADDING, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
+            c.drawImage(IMAGE_FOLDER_PATH+images[key],-IMAGE_SIZE/2-image_offset+i*image_padding,-IMAGE_SIZE/2+paddingDirection*PADDING, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
             image_text = content[key]
             value = int(image_text)
             if (value > 0):

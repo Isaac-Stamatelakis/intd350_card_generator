@@ -26,6 +26,12 @@ PLACE_CARD_PATH = "place.png"
 DISCARD_CARD_PATH = "discard.png"
 TIME_IMAGE_PATH = "time.png"
 
+COFFEE_IMAGE_PATH = "coffee.png"
+QUEUE_IMAGE_PATH = "queue.png"
+DRAW_CARD_IMAGE_PATH = "draw_card.png"
+LOOK_CARD_IMAGE_PATH = "choose_card.png"
+DRAW_DISCARD_CARD_IMAGE_PATH = "draw_discard_card.png"
+
 TITLE_KEY = "title"
 CONTENT_KEY = "content"
 DISCARD_KEY = "discard"
@@ -46,14 +52,19 @@ HUGE_FONT_SIZE = 18
 LIFE = 0
 SCHOOL = 1
 HEALTH = 2
-OTHER = 3
+COFFEE = 3
+SHIFT = 4
+CHOOSE_CARD = 5
+DRAW_CARD = 6
+DRAW_DISCARD_CARD = 7
+OTHER = 8
 
 CHOICE_CARD = 0
 TIME_CARD = 1
 
 TIME_CARD_COUNT = 7
 
-CREATE_BACK = True
+CREATE_BACK = False
 
 def wrap_text(text, width=20):
     result = []
@@ -174,17 +185,30 @@ def draw_card_choice_content(c, x, y, width, height, anchor_x, anchor_y, directi
     
     c.setFont(FONT_NORMAL, SMALL_FONT_SIZE)
     image_count = 0
-    images = {HEALTH:HEALTH_IMAGE_PATH,LIFE:LIFE_IMAGE_PATH,SCHOOL:SCHOOL_IMAGE_PATH}
+    images = {
+        HEALTH:HEALTH_IMAGE_PATH,
+        LIFE:LIFE_IMAGE_PATH,
+        SCHOOL:SCHOOL_IMAGE_PATH,
+        SHIFT:QUEUE_IMAGE_PATH,
+        COFFEE:COFFEE_IMAGE_PATH,
+        CHOOSE_CARD:LOOK_CARD_IMAGE_PATH,
+        DRAW_CARD:DRAW_CARD_IMAGE_PATH,
+        DRAW_DISCARD_CARD:DRAW_DISCARD_CARD_IMAGE_PATH
+    }
     for key in content.keys():
         if (key in images):
             image_count += 1
     
-    image_padding = IMAGE_SIZE+10
+    
+    image_padding = IMAGE_SIZE+5
     image_offset = (image_count)//2*image_padding/2
+    bonus_horizontal_padding = 5
     for i, key in enumerate(content.keys()):
         if (key in images):
-            c.drawImage(IMAGE_FOLDER_PATH+images[key],-IMAGE_SIZE/2-image_offset+i*image_padding,-IMAGE_SIZE/2+paddingDirection*PADDING, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
+            c.drawImage(IMAGE_FOLDER_PATH+images[key],-IMAGE_SIZE/2-image_offset+i*image_padding+bonus_horizontal_padding,-IMAGE_SIZE/2+paddingDirection*PADDING, IMAGE_SIZE, IMAGE_SIZE,mask='auto')
             image_text = content[key]
+            if image_text is None:
+                continue
             value = int(image_text)
             if (value > 0):
                 c.setFillColorRGB(1/255, 64/255, 2/255)
@@ -192,7 +216,7 @@ def draw_card_choice_content(c, x, y, width, height, anchor_x, anchor_y, directi
                 c.setFillColorRGB(64/255, 6/255, 0/255)
             c.setFont(FONT_NORMAL, LARGE_FONT_SIZE)
             contentWidth = c.stringWidth(image_text)
-            c.drawString(-contentWidth/2+IMAGE_SIZE/2-image_offset+i*image_padding, paddingDirection*PADDING+IMAGE_SIZE/4+2, image_text)
+            c.drawString(-contentWidth/2+IMAGE_SIZE/2-image_offset+i*image_padding+bonus_horizontal_padding, paddingDirection*PADDING+IMAGE_SIZE/4+3, image_text)
         else:
             contentWidth = c.stringWidth(content[key])
             c.drawString(-contentWidth/2, paddingDirection*PADDING, content[key])
@@ -268,7 +292,17 @@ def generate_pdf(cards):
     c.save()
 
 def parse_effects(effect_data):
-    categories = {"life":LIFE,"health":HEALTH,"school":SCHOOL}
+
+    categories = {
+        "life":LIFE,
+        "health":HEALTH,
+        "school":SCHOOL,
+        "coffee":COFFEE,
+        "queue":SHIFT,
+        "draw_card":DRAW_CARD,
+        "choose_card":CHOOSE_CARD,
+        "draw_discard":DRAW_DISCARD_CARD
+    }
     data = {}
     if (not isinstance(effect_data, str)):
         return data
@@ -279,7 +313,12 @@ def parse_effects(effect_data):
         word = words[i]
         lower = word.lower()
         if (lower in categories):
-            data[categories[lower]] = words[i+1]
+            category = categories[lower]
+            if i + 1 < len(words):
+                data[category] = words[i+1]
+            else:
+                data[category] = None
+            
             i += 2
             continue
         if (OTHER not in data.keys()):
